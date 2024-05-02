@@ -1,5 +1,7 @@
+// login utente
 async function userLogin() {
     try {
+        // prende gli attributi dal form
         const email = document.getElementById('username').value;
         const password = document.getElementById('password').value;
 
@@ -16,12 +18,17 @@ async function userLogin() {
 
         if (!response.ok) {
             throw new Error('Credenziali errate, riprova');
-        } else {
+        }
+
+        else {
             const encodedEmail = encodeURIComponent(email); // Codifica l'email per passarla come parametro attraverso la query string
             const userProfileURL = 'userProfile.html?email=' + encodedEmail;
             window.location.href = userProfileURL; // Naviga verso la pagina userProfile.html nella stessa finestra o scheda
         }
-    } catch (error) {
+
+    }
+
+    catch (error) {
         console.error('Errore:', error);
         var loginContainer = document.getElementById('loginInfo');
         loginContainer.innerHTML = '<p>' + error.message + '</p>';
@@ -29,36 +36,31 @@ async function userLogin() {
 }
 
 
-
-
+// registrazione utente
 async function registerUser() {
     try {
-        const name = document.getElementById('firstName').value;
-        const lastname = document.getElementById('lastName').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
         const response = await fetch('http://localhost:8080/api/utente/registrazione', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                "nome": name,
-                "cognome": lastname,
-                "email": email,
-                "password": password
+                "nome": document.getElementById('firstName').value,
+                "cognome": document.getElementById('lastName').value,
+                "email": document.getElementById('email').value,
+                "password": document.getElementById('password').value
             }),
         });
 
         if (!response.ok) {
-            throw new Error('Inserisci informazioni valide');
-        } else {
-            const encodedEmail = encodeURIComponent(email); // Codifica l'email per passarla come parametro attraverso la query string
-            const userProfileURL = 'userProfile.html?email=' + encodedEmail;
-            window.location.href = userProfileURL; // Naviga verso la pagina userProfile.html nella stessa finestra o scheda
+            throw new Error('Dati non validi / utente già registrato.');
         }
-    } catch (error) {
+        else {
+            window.location.href = 'login.html'; // Naviga verso la pagina login.html nella stessa finestra o scheda
+        }
+    }
+
+    catch (error) {
         console.error('Errore:', error);
         var loginContainer = document.getElementById('registerInfo');
         loginContainer.innerHTML = '<p>' + error.message + '</p>';
@@ -66,13 +68,10 @@ async function registerUser() {
 }
 
 
-
-
+// tabella lista degli utenti
 async function getAllUsers() {
     try {
-        // Effettua una chiamata GET all'endpoint fittizio per ottenere tutti gli utenti
         const response = await fetch('http://localhost:8080/api/utente/tutti_gli_utenti');
-        // Verifica che la risposta sia ok (status 200)
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -82,7 +81,7 @@ async function getAllUsers() {
 
         //stampa la tabella degli utenti sulla pagina html
         var userListContainer = document.getElementById('userList');
-        var userListHTML = '<table class="table table-bordered">';
+        var userListHTML = '<table class="table table-bordered table-striped">';
         userListHTML += '<thead><tr><th>ID</th><th>Nome</th><th>Cognome</th><th>Email</th><th>Corsi</th><th>Dettagli</th></tr></thead>';
         userListHTML += '<tbody>';
         users.forEach(function (user) {
@@ -96,18 +95,16 @@ async function getAllUsers() {
             if (user.corsi.length > 0) {
                 var corsiHTML = '';
                 user.corsi.forEach(function (corso) {
-                    corsiHTML += '<li>'
-                        + 'Corso: ' + corso.nomeCorso + '<br>'
-                        + 'Descrizione: ' + corso.descrizioneBreve + '<br>'
-                        + 'Durata: ' + corso.durata + ' ore' + '<br>'
-                        + '</li>';
+                    corsiHTML += '<li>' + corso.nomeCorso + '</li>';
                 });
                 userListHTML += '<td><ul>' + corsiHTML + '</ul></td>';
-            } else {
+            }
+
+            else {
                 userListHTML += '<td> nessuno </td>';
             }
 
-            // Aggiungi un pulsante "Dettagli" per visualizzare le informazioni dettagliate dell'utente
+            //pulsante "Dettagli" per visualizzare le informazioni dettagliate dell'utente
             userListHTML += '<td><button class="btn btn-primary" onclick="openInfoUserPage(\'' + user.email + '\')">Info Utente</button></td>';
 
             userListHTML += '</tr>';
@@ -122,7 +119,6 @@ async function getAllUsers() {
 }
 
 
-
 //apre la pagina "userInfo.html" con l'email dell'utente come parametro
 function openInfoUserPage(email) {
     var encodedEmail = encodeURIComponent(email); // Codifica l'email per passarla come parametro attraverso la query string
@@ -131,12 +127,12 @@ function openInfoUserPage(email) {
 }
 
 
-
-
+// stampa le info utente
 async function userInfo() {
     try {
         // valore dell'email dai parametri GET nell'URL corrente
         var email = new URLSearchParams(window.location.search).get('email');
+
         if (!email) {
             throw new Error('Email non trovata nei parametri GET.');
         }
@@ -163,30 +159,44 @@ async function userInfo() {
                                 <p class="card-text"><strong>Ruoli:</strong></p>
                                 <ul class="list-group">`;
 
-        // Aggiungi le informazioni sui ruoli dell'utente alla lista
-        user.ruoli.forEach(function (ruolo) {
-            userInfoHTML += `<li class="list-group-item">${ruolo.tipologia}</li>`;
-        });
+        // Verifica se l'utente ha ruoli
+        if (user.ruoli.length > 0) {
+            // Aggiungi le informazioni sui ruoli dell'utente alla lista
+            user.ruoli.forEach(function (ruolo) {
+                userInfoHTML += `    <li class="list-group-item">${ruolo.tipologia}</li>`;
+            });
+        } else {
+            // Se l'utente non ha ruoli, scrivi "Nessuno"
+            userInfoHTML += `       <li class="list-group-item">Nessuno</li>`;
+        }
 
         userInfoHTML += `       </ul>
-                                <p class="card-text mt-3"><strong>Corsi:</strong></p>`;
+                                <p class="card-text mt-3"><strong>Corsi:</strong></p>
+                                <ul class="list-group">`;
 
-        // Aggiungi le informazioni sui corsi dell'utente alla lista
-        user.corsi.forEach(function (corso) {
-            userInfoHTML += `
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <ul class="list-group">
-                            <li class="list-group-item">Nome: ${corso.nomeCorso}</li>
-                            <li class="list-group-item">In breve: ${corso.descrizioneBreve}</li>
-                            <li class="list-group-item">Descrizione: ${corso.descrizioneCompleta}</li>
-                            <li class="list-group-item">Durata: ${corso.durata} ore</li>
-                        </ul>
-                    </div>
-                </div>`;
-        });
+        // Verifica se l'utente ha corsi
+        if (user.corsi.length > 0) {
+            // Aggiungi le informazioni sui corsi dell'utente alla lista
+            user.corsi.forEach(function (corso) {
+                userInfoHTML += `
+                                <div class="card mt-3">
+                                    <div class="card-body">
+                                        <ul class="list-group">
+                                            <li class="list-group-item">Nome: ${corso.nomeCorso}</li>
+                                            <li class="list-group-item">In breve: ${corso.descrizioneBreve}</li>
+                                            <li class="list-group-item">Descrizione: ${corso.descrizioneCompleta}</li>
+                                            <li class="list-group-item">Durata: ${corso.durata} ore</li>
+                                        </ul>
+                                    </div>
+                                </div>`;
+            });
+        } else {
+            // Se l'utente non ha corsi, scrivi "Nessuno"
+            userInfoHTML += `       <li class="list-group-item">Nessuno</li>`;
+        }
 
-        userInfoHTML += `       </div>
+        userInfoHTML += `           </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
