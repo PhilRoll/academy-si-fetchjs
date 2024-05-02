@@ -45,7 +45,7 @@ async function registerUser() {
             },
             body: JSON.stringify({
                 "nome": name,
-                "cognome":lastname,
+                "cognome": lastname,
                 "email": email,
                 "password": password
             }),
@@ -87,28 +87,28 @@ async function getAllUsers() {
         userListHTML += '<tbody>';
         users.forEach(function (user) {
             userListHTML += '<tr>'
-                        +'<td>' + user.id + '</td>'
-                        +'<td>' + user.nome + '</td>'
-                        +'<td>' + user.cognome + '</td>'
-                        +'<td>' + user.email + '</td>';
+                + '<td>' + user.id + '</td>'
+                + '<td>' + user.nome + '</td>'
+                + '<td>' + user.cognome + '</td>'
+                + '<td>' + user.email + '</td>';
 
             // Se l'utente ha corsi associati, li aggiunge alla riga della tabella
             if (user.corsi.length > 0) {
                 var corsiHTML = '';
                 user.corsi.forEach(function (corso) {
                     corsiHTML += '<li>'
-                                +'Corso: ' + corso.nomeCorso +'<br>'
-                                + 'Descrizione: ' + corso.descrizioneBreve +'<br>'
-                                +'Durata: ' + corso.durata+' ore' +'<br>'
-                                + '</li>';
+                        + 'Corso: ' + corso.nomeCorso + '<br>'
+                        + 'Descrizione: ' + corso.descrizioneBreve + '<br>'
+                        + 'Durata: ' + corso.durata + ' ore' + '<br>'
+                        + '</li>';
                 });
                 userListHTML += '<td><ul>' + corsiHTML + '</ul></td>';
             } else {
                 userListHTML += '<td> nessuno </td>';
             }
 
-           // Aggiungi un pulsante "Dettagli" per visualizzare le informazioni dettagliate dell'utente
-           userListHTML += '<td><button class="btn btn-primary" onclick="openInfoUserPage(\'' + user.email + '\')">Info Utente</button></td>';
+            // Aggiungi un pulsante "Dettagli" per visualizzare le informazioni dettagliate dell'utente
+            userListHTML += '<td><button class="btn btn-primary" onclick="openInfoUserPage(\'' + user.email + '\')">Info Utente</button></td>';
 
             userListHTML += '</tr>';
         });
@@ -133,7 +133,7 @@ function openInfoUserPage(email) {
 
 
 
-async function userInfo(){
+async function userInfo() {
     try {
         // valore dell'email dai parametri GET nell'URL corrente
         var email = new URLSearchParams(window.location.search).get('email');
@@ -150,7 +150,7 @@ async function userInfo(){
 
         // Estrae il JSON dalla risposta
         const user = await response.json();
-        
+
         // Crea una stringa HTML per visualizzare le informazioni dell'utente come pagina di profilo personale
         var userInfoHTML = `
             <div class="container mt-5">
@@ -162,15 +162,15 @@ async function userInfo(){
                                 <p class="card-text"><strong>Email:</strong> ${user.email}</p>
                                 <p class="card-text"><strong>Ruoli:</strong></p>
                                 <ul class="list-group">`;
-                                
+
         // Aggiungi le informazioni sui ruoli dell'utente alla lista
         user.ruoli.forEach(function (ruolo) {
             userInfoHTML += `<li class="list-group-item">${ruolo.tipologia}</li>`;
         });
-        
+
         userInfoHTML += `       </ul>
                                 <p class="card-text mt-3"><strong>Corsi:</strong></p>`;
-                                
+
         // Aggiungi le informazioni sui corsi dell'utente alla lista
         user.corsi.forEach(function (corso) {
             userInfoHTML += `
@@ -197,7 +197,7 @@ async function userInfo(){
         var userContainer = document.getElementById('userInfo');
         userContainer.innerHTML = userInfoHTML;
     }
-    
+
     catch (error) {
         // Gestisce eventuali errori
         console.error('Errore durante la chiamata REST:', error);
@@ -227,7 +227,7 @@ async function deleteUser() {
             throw new Error('Errore durante l\'eliminazione dell\'utente');
         } else {
             // Se l'eliminazione è avvenuta con successo, reindirizza alla homepage
-            window.location.href = 'homepage.html'; 
+            window.location.href = 'homepage.html';
         }
     } catch (error) {
         // Gestisci gli errori
