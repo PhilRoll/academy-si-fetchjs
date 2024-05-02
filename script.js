@@ -205,78 +205,32 @@ async function userInfo(){
 }
 
 
-//SIMILE A "userInfo"
-async function userProfile(){
+async function deleteUser() {
     try {
-        // valore dell'email dai parametri GET nell'URL corrente
+        // Ottieni l'email dall'URL
         var email = new URLSearchParams(window.location.search).get('email');
         if (!email) {
-            throw new Error('Email non trovata nei parametri GET.');
+            throw new Error('Email non trovata nei parametri GET');
         }
 
-        // Effettua una chiamata GET all'endpoint fittizio
-        const response = await fetch(`http://localhost:8080/api/utente/infoutente?email=${email}`);
-        // Verifica che la risposta sia ok (status 200)
+        // Effettua la richiesta di eliminazione dell'utente
+        const response = await fetch(`http://localhost:8080/api/utente/elimina/${email}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        // Controlla se la richiesta è stata completata con successo
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Se la risposta non è OK, gestisci l'errore
+            throw new Error('Errore durante l\'eliminazione dell\'utente');
+        } else {
+            // Se l'eliminazione è avvenuta con successo, reindirizza alla homepage
+            window.location.href = 'homepage.html'; 
         }
-
-        // Estrae il JSON dalla risposta
-        const user = await response.json();
-        
-        // Crea una stringa HTML per visualizzare le informazioni dell'utente come pagina di profilo personale
-        var userInfoHTML = `
-            <div class="container mt-5">
-                <div class="row">
-                    <div class="col-md-8 offset-md-2">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Profilo di ${user.nome} ${user.cognome}</h5>
-                                <p class="card-text"><strong>Email:</strong> ${user.email}</p>
-                                <p class="card-text"><strong>Ruoli:</strong></p>
-                                <ul class="list-group">`;
-                                
-        // Aggiungi le informazioni sui ruoli dell'utente alla lista
-        user.ruoli.forEach(function (ruolo) {
-            userInfoHTML += `<li class="list-group-item">${ruolo.tipologia}</li>`;
-        });
-        
-        userInfoHTML += `       </ul>
-                                <p class="card-text mt-3"><strong>Corsi:</strong></p>`;
-                                
-        // Aggiungi le informazioni sui corsi dell'utente alla lista
-        user.corsi.forEach(function (corso) {
-            userInfoHTML += `
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <ul class="list-group">
-                            <li class="list-group-item">Nome: ${corso.nomeCorso}</li>
-                            <li class="list-group-item">In breve: ${corso.descrizioneBreve}</li>
-                            <li class="list-group-item">Descrizione: ${corso.descrizioneCompleta}</li>
-                            <li class="list-group-item">Durata: ${corso.durata} ore</li>
-                        </ul>
-                    </div>
-                </div>`;
-        });
-
-        // Aggiungi i pulsanti "Elimina utente" e "Modifica utente"
-        userInfoHTML += `
-                <div class="mt-4 text-center">
-                    <button class="btn btn-danger mr-2" onclick="deleteUser('${user.id}')">Elimina utente</button>
-                    <button class="btn btn-primary" onclick="editUser('${user.id}')">Modifica utente</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>`;
-
-        // Visualizza la pagina di profilo nella pagina HTML
-        var userContainer = document.getElementById('userInfo');
-        userContainer.innerHTML = userInfoHTML;
-    }
-    
-    catch (error) {
-        // Gestisce eventuali errori
-        console.error('Errore durante la chiamata REST:', error);
+    } catch (error) {
+        // Gestisci gli errori
+        console.error('Errore durante la chiamata REST:', error.message);
     }
 }
